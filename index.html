@@ -41,7 +41,34 @@
             pointer-events: none;
         }
 
-        /* Floating Icons Layer */
+        /* Balloon Layer - Specific for Envelope Screen */
+        #balloon-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Changed from 40 to 0 to sit behind wrapper */
+            pointer-events: none;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+
+        /* Updated 3D Balloon Styles */
+        .balloon-svg {
+            position: absolute;
+            bottom: -150px;
+            opacity: 0.95;
+            animation: floatUp linear forwards;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); /* Soft shadow behind balloon */
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-120vh) rotate(10deg); }
+        }
+
+        /* Floating Icons Layer (Final Screen) */
         #floating-layer {
             position: absolute;
             top: 0;
@@ -116,6 +143,7 @@
             margin-top: 40px; 
             margin-bottom: 20px;
             perspective: 1000px;
+            z-index: 10; /* Ensure this sits above the balloons (z-0) */
         }
 
         .envelope {
@@ -539,6 +567,23 @@
             to { opacity: 1; }
         }
 
+        /* NEW: Smooth Neon Rainbow Glow Animation */
+        @keyframes neon-rainbow {
+            0% { color: #ff0055; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055; }
+            15% { color: #ff9900; text-shadow: 0 0 10px #ff9900, 0 0 20px #ff9900, 0 0 40px #ff9900; }
+            30% { color: #ffcc00; text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00, 0 0 40px #ffcc00; }
+            45% { color: #33ff00; text-shadow: 0 0 10px #33ff00, 0 0 20px #33ff00, 0 0 40px #33ff00; }
+            60% { color: #00ccff; text-shadow: 0 0 10px #00ccff, 0 0 20px #00ccff, 0 0 40px #00ccff; }
+            75% { color: #9933ff; text-shadow: 0 0 10px #9933ff, 0 0 20px #9933ff, 0 0 40px #9933ff; }
+            90% { color: #ff00cc; text-shadow: 0 0 10px #ff00cc, 0 0 20px #ff00cc, 0 0 40px #ff00cc; }
+            100% { color: #ff0055; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055; }
+        }
+
+        .rainbow-text {
+            /* Removed background-clip for better glow performance */
+            animation: neon-rainbow 6s linear infinite;
+        }
+
         /* Share Modal Styles */
         #share-modal-layer {
             position: absolute;
@@ -557,6 +602,21 @@
             pointer-events: auto;
         }
         
+        /* Colorful Share Card */
+        .share-card-colorful {
+            width: 320px; 
+            padding: 2rem; 
+            max-width: 90%;
+            border-radius: 20px;
+            /* Gradient Border Trick */
+            background: linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+                        linear-gradient(45deg, #ff0055, #ffcc00, #00ccff, #ff0055) border-box;
+            border: 4px solid transparent;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
         .share-option-btn {
             display: flex;
             align-items: center;
@@ -577,6 +637,32 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+        
+        /* Specific Button Colors */
+        #btn-whatsapp {
+            background-color: #25D366; /* Official WhatsApp Green */
+            border-color: #25D366;
+        }
+        #btn-whatsapp:hover {
+            background-color: #128C7E;
+        }
+
+        #btn-facebook {
+            background-color: #1877F2; /* Official Facebook Blue */
+            border-color: #1877F2;
+        }
+        #btn-facebook:hover {
+            background-color: #155cb0;
+        }
+
+        #btn-copy {
+            background-color: #FFFDD0; /* Cream */
+            color: #333333; /* Dark text for contrast */
+            border-color: #FFFDD0;
+        }
+        #btn-copy:hover {
+            background-color: #EEE8AA; /* Darker cream on hover */
+        }
 
     </style>
 </head>
@@ -589,6 +675,8 @@
 
     <!-- Floating Icons Layer (Final Scene) -->
     <div id="floating-layer"></div>
+    
+    <!-- Balloon Layer REMOVED FROM HERE -->
 
     <!-- Background Giant Year -->
     <div class="year-bg" id="bg-year">2025</div>
@@ -621,6 +709,9 @@
 
         <!-- Envelope Layer -->
         <div id="envelope-layer">
+            <!-- Balloon Layer MOVED HERE -->
+            <div id="balloon-layer"></div>
+
             <div class="sender-msg" id="envelope-msg">User has sent you a message</div>
             
             <div class="envelope-wrapper" id="envelopeWrapper">
@@ -647,22 +738,23 @@
 
         <!-- Share Modal Layer -->
         <div id="share-modal-layer">
-            <div class="glass-card" style="width: 320px; padding: 2rem; max-width: 90%;">
-                <h3 class="text-2xl font-bold text-white mb-6">Share the Celebration</h3>
+            <div class="share-card-colorful">
+                <h3 class="text-2xl font-bold text-white mb-6" style="text-shadow: 0 0 10px rgba(255,255,255,0.5);">Share the Celebration</h3>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="share-option-btn bg-green-600 hover:bg-green-700" onclick="shareTo('whatsapp')">
+                    <!-- Updated with specific IDs and removed utility bg classes -->
+                    <button id="btn-whatsapp" class="share-option-btn" onclick="shareTo('whatsapp')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
                         </svg>
                         WhatsApp
                     </button>
-                    <button class="share-option-btn bg-blue-600 hover:bg-blue-700" onclick="shareTo('facebook')">
+                    <button id="btn-facebook" class="share-option-btn" onclick="shareTo('facebook')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
                         </svg>
                         Facebook
                     </button>
-                    <button class="share-option-btn bg-gray-600 hover:bg-gray-700" onclick="shareTo('copy')">
+                    <button id="btn-copy" class="share-option-btn" onclick="shareTo('copy')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
                             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
@@ -677,7 +769,8 @@
 
         <!-- Celebration Message (Hidden initially) -->
         <div id="message-container">
-            <h1 class="wish-text font-bold text-white mb-2 floating neon-gold">Happy New Year</h1>
+            <!-- Applied .rainbow-text here -->
+            <h1 class="wish-text font-bold text-white mb-2 floating rainbow-text">Happy New Year</h1>
             <div id="user-name-display" class="name-text font-bold text-white name-animate"></div>
             <!-- Instruction text made full white (removed opacity-80) -->
             <p class="mt-4 text-white text-sm md:text-lg animate-pulse" style="text-shadow: 0 0 10px rgba(0,0,0,0.5);">Click or tap anywhere for fireworks!</p>
@@ -723,6 +816,9 @@
         let stars = [];
         let stickmen = [];
         let floatIcons = [];
+        let balloons = [];
+        let balloonInterval;
+        let isBalloonActive = false;
         
         // Settings
         const GRAVITY = 0.04;
@@ -745,6 +841,144 @@
         const colors = ['#ff0055', '#ff00aa', '#ffcc00', '#00ffcc', '#00ccff', '#aa00ff', '#ffffff', '#ff9900'];
         const randomColor = () => colors[Math.floor(Math.random() * colors.length)];
         const shapes = ['🎁', '😊', '❤️', '🎈', '🥂', '🌟', '🎉'];
+
+        /**
+         * Balloon Logic (Updated for 3D Realism)
+         */
+        class Balloon {
+            constructor() {
+                this.x = Math.random() * 90 + 5; 
+                // Slower, more realistic float duration
+                const duration = Math.random() * 5 + 8; 
+                const color = randomColor();
+                const gradId = 'grad-' + Math.random().toString(36).substr(2, 9);
+                
+                const svgNS = "http://www.w3.org/2000/svg";
+                this.element = document.createElementNS(svgNS, "svg");
+                this.element.classList.add('balloon-svg');
+                this.element.style.left = this.x + '%';
+                this.element.style.animationDuration = duration + 's';
+                
+                // Size variation
+                const size = Math.random() * 30 + 50; // 50px to 80px width
+                this.element.setAttribute("width", size);
+                this.element.setAttribute("height", size * 1.6); // Provide room for string
+                this.element.setAttribute("viewBox", "0 0 100 150");
+                this.element.style.width = size + 'px';
+                this.element.style.height = (size * 1.6) + 'px';
+
+                // 1. Define 3D Gradient
+                const defs = document.createElementNS(svgNS, "defs");
+                const radialGrad = document.createElementNS(svgNS, "radialGradient");
+                radialGrad.setAttribute("id", gradId);
+                // Focal point for highlight (top-left)
+                radialGrad.setAttribute("cx", "35%");
+                radialGrad.setAttribute("cy", "35%");
+                radialGrad.setAttribute("r", "60%");
+                radialGrad.setAttribute("fx", "25%");
+                radialGrad.setAttribute("fy", "25%");
+                
+                // Specular Highlight (White/Shiny)
+                const stop1 = document.createElementNS(svgNS, "stop");
+                stop1.setAttribute("offset", "0%");
+                stop1.setAttribute("stop-color", "#ffffff");
+                stop1.setAttribute("stop-opacity", "0.9");
+                
+                // Main Color
+                const stop2 = document.createElementNS(svgNS, "stop");
+                stop2.setAttribute("offset", "45%");
+                stop2.setAttribute("stop-color", color);
+                
+                // Shadow/Darker Edge
+                const stop3 = document.createElementNS(svgNS, "stop");
+                stop3.setAttribute("offset", "100%");
+                stop3.setAttribute("stop-color", "#000000"); // Interpolates to dark
+                stop3.setAttribute("stop-opacity", "0.3"); // Keeps color visible but darkened
+                
+                radialGrad.appendChild(stop1);
+                radialGrad.appendChild(stop2);
+                radialGrad.appendChild(stop3);
+                defs.appendChild(radialGrad);
+                this.element.appendChild(defs);
+
+                // 2. Create Shape
+                const shapeType = Math.random();
+                let shape;
+                
+                if (shapeType < 0.4) {
+                    // Oval / Standard Balloon
+                    shape = document.createElementNS(svgNS, "ellipse");
+                    shape.setAttribute("cx", "50");
+                    shape.setAttribute("cy", "50");
+                    shape.setAttribute("rx", "40");
+                    shape.setAttribute("ry", "48");
+                } else if (shapeType < 0.7) {
+                    // Round
+                    shape = document.createElementNS(svgNS, "circle");
+                    shape.setAttribute("cx", "50");
+                    shape.setAttribute("cy", "50");
+                    shape.setAttribute("r", "42");
+                } else {
+                    // Heart
+                    shape = document.createElementNS(svgNS, "path");
+                    // Refined Heart Path
+                    shape.setAttribute("d", "M50,88 C50,88 12,65 12,38 C12,18 28,8 40,15 C46,19 50,28 50,28 C50,28 54,19 60,15 C72,8 88,18 88,38 C88,65 50,88 50,88 Z");
+                    // Adjust transform to center it
+                    shape.setAttribute("transform", "translate(0, 5)");
+                }
+                
+                shape.setAttribute("fill", `url(#${gradId})`);
+                this.element.appendChild(shape);
+
+                // 3. Balloon Knot (Small triangle at bottom)
+                const knot = document.createElementNS(svgNS, "path");
+                // Position knot based on shape (approx bottom center)
+                // For simplified logic, assume ~90-95 is bottom
+                const knotY = shapeType >= 0.7 ? 92 : 98; // Hearts end a bit higher
+                knot.setAttribute("d", `M46,${knotY-4} L54,${knotY-4} L50,${knotY+4} Z`);
+                knot.setAttribute("fill", color);
+                this.element.appendChild(knot);
+
+                // 4. String (Curved path)
+                const string = document.createElementNS(svgNS, "path");
+                string.setAttribute("d", `M50,${knotY+4} Q55,${knotY+20} 50,${knotY+35} T50,${knotY+55}`);
+                string.setAttribute("stroke", "rgba(255,255,255,0.6)");
+                string.setAttribute("stroke-width", "1.5");
+                string.setAttribute("fill", "none");
+                this.element.appendChild(string);
+
+                document.getElementById('balloon-layer').appendChild(this.element);
+                
+                // Self cleanup
+                setTimeout(() => {
+                    if(this.element.parentNode) this.element.parentNode.removeChild(this.element);
+                }, duration * 1000);
+            }
+        }
+
+        function startBalloons() {
+            if(isBalloonActive) return;
+            isBalloonActive = true;
+            document.getElementById('balloon-layer').style.display = 'block';
+            
+            // Spawn initial burst
+            for(let i=0; i<5; i++) new Balloon();
+
+            balloonInterval = setInterval(() => {
+                if(isBalloonActive) new Balloon();
+            }, 600);
+        }
+
+        function stopBalloons() {
+            isBalloonActive = false;
+            clearInterval(balloonInterval);
+            const layer = document.getElementById('balloon-layer');
+            // Allow existing to float up then clear
+            setTimeout(() => {
+                layer.innerHTML = '';
+                layer.style.display = 'none';
+            }, 2000); 
+        }
 
         /**
          * Floating Shapes Class
@@ -1091,6 +1325,9 @@
             partyBtn.style.display = 'none'; // Ensure hidden initially
             partyBtn.classList.remove('fade-in');
             
+            // Start Balloons!
+            startBalloons();
+            
             setTimeout(() => { envelopeLayer.style.opacity = '1'; }, 10);
         }
 
@@ -1109,6 +1346,9 @@
         partyBtn.addEventListener('click', () => {
              // Fade out envelope
              envelopeLayer.style.opacity = '0';
+             
+             // Stop Balloons!
+             stopBalloons();
              
              setTimeout(() => {
                 envelopeLayer.style.display = 'none';
@@ -1176,6 +1416,9 @@
             envelopeLayer.style.opacity = '0';
             document.getElementById('envelope-msg').classList.remove('fade-out');
             envelopeWrapper.classList.remove('open');
+            
+            // Reset Balloons
+            stopBalloons();
             
             // Reset Buttons inside Envelope
             openEnvBtn.style.display = 'block';
