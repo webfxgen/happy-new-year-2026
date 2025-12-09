@@ -283,10 +283,9 @@
         /* Message Container */
         #message-container {
             position: absolute;
-            top: 50%;
+            top: 15%; /* Moved to top side */
             left: 50%;
-            /* Shifted down to avoid overlapping the year text too much */
-            transform: translate(-50%, -40%);
+            transform: translateX(-50%); /* Centered horizontally */
             text-align: center;
             pointer-events: none;
             opacity: 0;
@@ -300,7 +299,7 @@
             font-family: 'Sacramento', cursive;
             font-size: clamp(3.5rem, 13vw, 8rem);
             line-height: 1.1;
-            /* Stronger shadow for better visibility against background year */
+            /* Stronger shadow for better visibility */
             text-shadow: 
                 0 0 5px #fff,
                 0 0 10px #ffcc00,
@@ -325,13 +324,12 @@
         }
 
         .year-bg {
-            font-size: 25vw; /* Much larger */
+            font-size: 25vw; 
             font-weight: 900;
             position: absolute;
-            top: 50%;
+            top: 60%; /* Moved below the text */
             left: 50%;
-            /* Shifted up to separate visual center from message */
-            transform: translate(-50%, -60%);
+            transform: translate(-50%, -50%);
             color: transparent;
             -webkit-text-stroke: 2px rgba(255, 255, 255, 0.15);
             pointer-events: none;
