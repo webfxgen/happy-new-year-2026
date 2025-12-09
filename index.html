@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy New Year 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Sacramento&family=Handlee&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #020204;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI Layer */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        /* Floating Icons Layer */
+        #floating-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .float-icon {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0;
+            animation: float-fade 6s ease-in-out infinite;
+        }
+
+        @keyframes float-fade {
+            0% { transform: translateY(20px) scale(0.8); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-50px) scale(1.1); opacity: 0; }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+            pointer-events: auto;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .hidden-card {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            display: none;
+        }
+
+        /* Envelope Styles */
+        #envelope-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.85); /* Darker background */
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 1s;
+            pointer-events: auto;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 240px; 
+            margin-top: 40px; 
+            margin-bottom: 20px;
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #e60073;
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .envelope::after { /* Bottom pocket */
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%; /* Adjusted for height */
+            border-left: 150px solid #ff0080;
+            border-right: 150px solid #ff0080;
+            border-top: 100px solid transparent;
+            border-bottom: 0;
+            z-index: 10;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0; 
+            height: 0; 
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 130px solid #cc0066; /* Adjusted for height */
+            transform-origin: top;
+            transition: transform 0.6s ease 0.2s, z-index 0.2s;
+            z-index: 15;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .letter {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 270px;
+            height: 220px;
+            background: #fff;
+            padding: 20px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.8s ease 0.6s, z-index 0.1s;
+            z-index: 6; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Handlee', cursive;
+            color: #333;
+            text-align: center;
+            font-size: 0.9rem; 
+            line-height: 1.4;
+        }
+
+        /* Open State Animations */
+        .envelope-wrapper.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.open .letter {
+            transform: translateY(-130px); /* Slide up higher */
+            z-index: 12; 
+        }
+        
+        .sender-msg {
+            margin-bottom: 10px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .sender-msg.fade-out {
+            opacity: 0;
+        }
+
+        /* Neon Text */
+        .neon-text {
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #e60073, 0 0 30px #e60073;
+        }
+
+        .neon-gold {
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px #ffcc00, 0 0 20px #ffcc00, 0 0 40px #ffae00;
+        }
+        
+        /* Intro Text */
+        .intro-text {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            position: absolute;
+            opacity: 0;
+            transition: all 0.8s ease;
+        }
+
+        .intro-sub {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 400;
+            display: block;
+            margin-bottom: 1rem;
+            color: #ff0055;
+        }
+
+        /* Inputs and Buttons */
+        input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+        input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #e60073;
+            box-shadow: 0 0 10px rgba(230, 0, 115, 0.5);
+        }
+
+        .btn-glow {
+            background: linear-gradient(45deg, #ff0055, #ff00aa);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px #ff0055;
+        }
+        
+        .btn-glow-green {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(56, 239, 125, 0.5);
+        }
+        .btn-glow-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(56, 239, 125, 0.8);
+        }
+
+        /* Message Container */
+        #message-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Shifted down to avoid overlapping the year text too much */
+            transform: translate(-50%, -40%);
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            width: 100%;
+            padding: 20px;
+            z-index: 20;
+        }
+
+        .wish-text {
+            font-family: 'Sacramento', cursive;
+            font-size: clamp(3.5rem, 13vw, 8rem);
+            line-height: 1.1;
+            /* Stronger shadow for better visibility against background year */
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #ffcc00,
+                2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .name-text {
+            font-size: clamp(1.2rem, 4vw, 2.5rem); 
+            font-family: 'Handlee', cursive; 
+            line-height: 1;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            color: #ff0055; 
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.5); 
+        }
+
+        /* 2026 Background Animation */
+        @keyframes stroke-anim {
+            0% { -webkit-text-stroke: 3px rgba(255, 255, 255, 0.1); }
+            50% { -webkit-text-stroke: 3px rgba(230, 0, 115, 0.8); filter: drop-shadow(0 0 10px rgba(230, 0, 115, 0.5)); } 
+            100% { -webkit-text-stroke: 3px rgba(255, 255, 255, 0.1); }
+        }
+
+        .year-bg {
+            font-size: 25vw; /* Much larger */
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Shifted up to separate visual center from message */
+            transform: translate(-50%, -60%);
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            z-index: 0; 
+            user-select: none;
+            opacity: 0.5;
+            transition: all 1s ease;
+        }
+        
+        .year-bg.active {
+            animation: stroke-anim 3s infinite ease-in-out;
+            color: rgba(0, 0, 0, 0.1); 
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes color-pulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.2) hue-rotate(15deg); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        
+        @keyframes slide-out-left {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(-100vw) scale(0.8); opacity: 0; }
+        }
+        
+        @keyframes slide-in-right {
+            0% { transform: translateX(100vw) scale(0.8); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        /* Button Entrance Animation */
+        @keyframes pop-in {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .floating { animation: float 4s ease-in-out infinite; }
+        .name-animate { animation: color-pulse 2.5s ease-in-out infinite; }
+        .anim-slide-out { animation: slide-out-left 1.2s forwards cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .anim-slide-in { animation: slide-in-right 1.2s forwards cubic-bezier(0.4, 0.0, 0.2, 1); }
+
+        .controls {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            z-index: 30;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-size: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            opacity: 0; /* Initially invisible for animation */
+            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .control-btn:hover { 
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Staggered animation delays */
+        .control-btn:nth-child(1) { animation-delay: 0.1s; }
+        .control-btn:nth-child(2) { animation-delay: 0.2s; }
+        
+        #toast {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 200, 100, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            z-index: 30;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            pointer-events: auto;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+        
+        .footer a { color: #ff0055; text-decoration: none; font-weight: bold; transition: color 0.3s; }
+        .footer a:hover { color: #ffcc00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); }
+        
+        /* Fade transition class for buttons */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for Fireworks -->
+    <div id="canvas-container">
+        <canvas id="fireworksCanvas"></canvas>
+    </div>
+
+    <!-- Floating Icons Layer (Final Scene) -->
+    <div id="floating-layer"></div>
+
+    <!-- Background Giant Year -->
+    <div class="year-bg" id="bg-year">2025</div>
+
+    <!-- UI Interaction Layer -->
+    <div id="ui-layer">
+        
+        <!-- Intro Animation Elements -->
+        <div id="intro-container" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div id="intro-bye" class="intro-text">
+                <span class="intro-sub">Bye Bye</span>2025
+            </div>
+            <div id="intro-hello" class="intro-text">
+                <span class="intro-sub">Welcome</span>2026
+            </div>
+        </div>
+        
+        <!-- Setup Card -->
+        <div id="setup-card" class="glass-card">
+            <h1 class="text-3xl font-bold mb-2 text-white">New Year's Eve</h1>
+            <h2 class="text-5xl font-black mb-6 neon-text tracking-wider">2026</h2>
+            <p class="text-gray-300 mb-6 text-sm">Enter your name to start the celebration!</p>
+            
+            <input type="text" id="nameInput" placeholder="Your Name" class="w-full p-4 rounded-lg mb-6 text-center text-xl placeholder-gray-400">
+            
+            <button id="startBtn" class="w-full py-4 rounded-lg font-bold text-xl btn-glow uppercase tracking-widest">
+                Celebrate
+            </button>
+        </div>
+
+        <!-- Envelope Layer -->
+        <div id="envelope-layer">
+            <div class="sender-msg" id="envelope-msg">User has sent you a message</div>
+            
+            <div class="envelope-wrapper" id="envelopeWrapper">
+                <div class="envelope">
+                    <div class="flap"></div>
+                    <div class="letter">
+                        <div style="width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; justify-content: center;">
+                            <p style="margin-bottom: 8px;">Wishing you a year full of new beginnings, new opportunities, and new dreams.</p>
+                            <p style="margin-bottom: 8px;">May happiness follow you wherever you go and may success be your constant companion.</p>
+                            <p style="margin-bottom: 8px;">Cheers to a brighter, healthier, and more beautiful 2026.</p>
+                            <p style="font-weight: bold; color: #e60073;">Happy New Year! 🎆💫</p>
+                        </div>
+                        <p style="margin-top: 10px; font-weight: bold; color: #ff0055; font-size: 0.8rem;" id="letter-sign">From User</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Container -->
+            <div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-top: 30px; gap: 1rem;">
+                <button id="openEnvBtn" class="py-3 px-8 rounded-lg font-bold text-lg btn-glow">Open Message</button>
+                <button id="partyBtn" class="py-3 px-8 rounded-lg font-bold text-xl btn-glow-green hidden" style="display: none;">Let's Party! 🎉</button>
+            </div>
+        </div>
+
+        <!-- Celebration Message (Hidden initially) -->
+        <div id="message-container">
+            <h1 class="wish-text font-bold text-white mb-2 floating neon-gold">Happy New Year</h1>
+            <div id="user-name-display" class="name-text font-bold text-white name-animate"></div>
+            <!-- Instruction text made full white (removed opacity-80) -->
+            <p class="mt-4 text-white text-sm md:text-lg animate-pulse" style="text-shadow: 0 0 10px rgba(0,0,0,0.5);">Click or tap anywhere for fireworks!</p>
+        </div>
+
+    </div>
+
+    <!-- Corner Controls -->
+    <div class="controls" id="controls-panel" style="display:none;">
+        <button id="shareBtn" class="control-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+            </svg>
+            Share
+        </button>
+        <button id="resetBtn" class="control-btn">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+            New Name
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast">Link copied to clipboard!</div>
+
+    <!-- Footer Credit -->
+    <div class="footer">
+        Made with ❤️ by <a href="https://www.webfxgen.in/" target="_blank">WebFXGen</a>
+    </div>
+
+    <script>
+        /**
+         * Canvas & Animation Logic
+         */
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let fireworks = [];
+        let sparks = [];
+        let stars = [];
+        let stickmen = [];
+        let floatIcons = [];
+        
+        // Settings
+        const GRAVITY = 0.04;
+        const FRICTION = 0.98;
+        const LAUNCH_INTERVAL = 40;
+        let timer = 0;
+        let isRunning = false; 
+
+        // Resize handling
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initStars();
+            if(stickmen.length > 0) initStickmen();
+        }
+        window.addEventListener('resize', resize);
+
+        // Utilities
+        const random = (min, max) => Math.random() * (max - min) + min;
+        const colors = ['#ff0055', '#ff00aa', '#ffcc00', '#00ffcc', '#00ccff', '#aa00ff', '#ffffff', '#ff9900'];
+        const randomColor = () => colors[Math.floor(Math.random() * colors.length)];
+        const shapes = ['🎁', '😊', '❤️', '🎈', '🥂', '🌟', '🎉'];
+
+        /**
+         * Floating Shapes Class
+         */
+        function spawnFloatingIcon() {
+            const icon = document.createElement('div');
+            icon.classList.add('float-icon');
+            icon.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            // Random Position
+            icon.style.left = Math.random() * 90 + 5 + '%';
+            icon.style.top = Math.random() * 80 + 10 + '%';
+            
+            // Random duration
+            const duration = 4 + Math.random() * 4;
+            icon.style.animationDuration = duration + 's';
+            
+            document.getElementById('floating-layer').appendChild(icon);
+            
+            // Cleanup
+            setTimeout(() => {
+                if(icon.parentNode) icon.parentNode.removeChild(icon);
+            }, duration * 1000);
+        }
+
+        // Start Floating loop
+        function startFloatingIcons() {
+            setInterval(() => {
+                if(isRunning) spawnFloatingIcon();
+            }, 800);
+        }
+
+        /**
+         * Star Class
+         */
+        class Star {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2;
+                this.blinkSpeed = 0.01 + Math.random() * 0.05;
+                this.alpha = Math.random();
+                this.direction = Math.random() > 0.5 ? 1 : -1;
+            }
+            update() {
+                this.alpha += this.blinkSpeed * this.direction;
+                if (this.alpha >= 1) { this.alpha = 1; this.direction = -1; } 
+                else if (this.alpha <= 0.1) { this.alpha = 0.1; this.direction = 1; }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function initStars() {
+            stars = [];
+            for(let i=0; i<100; i++) stars.push(new Star());
+        }
+
+        /**
+         * Stickman Class
+         */
+        class Stickman {
+            constructor(x) {
+                this.x = x;
+                this.baseY = height - 10;
+                this.y = this.baseY;
+                this.height = random(50, 70);
+                this.color = '#fff';
+                this.hatColor = randomColor();
+                this.danceOffset = random(0, 1000);
+                this.danceSpeed = random(0.005, 0.015);
+                this.jumpHeight = random(10, 30);
+            }
+            update(time) {
+                const beat = time * this.danceSpeed + this.danceOffset;
+                const jump = Math.abs(Math.sin(beat));
+                this.y = this.baseY - (jump * this.jumpHeight);
+            }
+            draw(time) {
+                const beat = time * this.danceSpeed + this.danceOffset;
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                // Body
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.height * 0.4); 
+                ctx.lineTo(this.x, this.y - this.height * 0.1); 
+                ctx.stroke();
+
+                // Legs
+                const leftLegAngle = Math.sin(beat * 2) * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.height * 0.1);
+                ctx.lineTo(this.x - 15 + (leftLegAngle * 10), this.y + 10);
+                ctx.stroke();
+
+                const rightLegAngle = Math.cos(beat * 2) * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.height * 0.1);
+                ctx.lineTo(this.x + 15 + (rightLegAngle * 10), this.y + 10);
+                ctx.stroke();
+
+                // Arms
+                const leftArmAngle = Math.sin(beat * 3) * 1; 
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.height * 0.35); 
+                ctx.lineTo(this.x - 20, this.y - this.height * 0.35 - 20 - (leftArmAngle * 15));
+                ctx.stroke();
+
+                const rightArmAngle = Math.cos(beat * 3) * 1;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.height * 0.35); 
+                ctx.lineTo(this.x + 20, this.y - this.height * 0.35 - 20 - (rightArmAngle * 15));
+                ctx.stroke();
+
+                // Head
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y - this.height * 0.5, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Hat
+                ctx.fillStyle = this.hatColor;
+                ctx.beginPath();
+                ctx.moveTo(this.x - 8, this.y - this.height * 0.5 - 6);
+                ctx.lineTo(this.x + 8, this.y - this.height * 0.5 - 6);
+                ctx.lineTo(this.x, this.y - this.height * 0.5 - 25);
+                ctx.fill();
+            }
+        }
+        function initStickmen() {
+            stickmen = [];
+            const count = Math.floor(width / 100); 
+            const spacing = width / (count + 1);
+            for(let i=1; i<=count; i++) stickmen.push(new Stickman(i * spacing));
+        }
+
+        /**
+         * Firework & Particle Classes
+         */
+        class Firework {
+            constructor(x, y, targetX, targetY) {
+                this.x = x; this.y = y; this.startX = x; this.startY = y;
+                this.targetX = targetX; this.targetY = targetY;
+                this.distanceToTarget = Math.sqrt(Math.pow(targetX - x, 2) + Math.pow(targetY - y, 2));
+                this.distanceTraveled = 0;
+                this.coordinates = []; this.coordinateCount = 3;
+                while (this.coordinateCount--) this.coordinates.push([this.x, this.y]);
+                this.angle = Math.atan2(targetY - y, targetX - x);
+                this.speed = 2; this.acceleration = 1.05; this.brightness = random(50, 70);
+                this.targetRadius = 1; this.hue = Math.floor(random(0, 360));
+            }
+            update(index) {
+                this.coordinates.pop(); this.coordinates.unshift([this.x, this.y]);
+                if (this.targetRadius < 8) this.targetRadius += 0.3; else this.targetRadius = 1;
+                this.speed *= this.acceleration;
+                const vx = Math.cos(this.angle) * this.speed;
+                const vy = Math.sin(this.angle) * this.speed;
+                this.distanceTraveled = Math.sqrt(Math.pow(this.x - this.startX, 2) + Math.pow(this.y - this.startY, 2));
+                if (this.distanceTraveled >= this.distanceToTarget) {
+                    createParticles(this.targetX, this.targetY, this.hue);
+                    fireworks.splice(index, 1);
+                } else { this.x += vx; this.y += vy; }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(this.targetX, this.targetY, this.targetRadius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, hue) {
+                this.x = x; this.y = y;
+                this.coordinates = []; this.coordinateCount = 5;
+                while (this.coordinateCount--) this.coordinates.push([this.x, this.y]);
+                this.angle = random(0, Math.PI * 2);
+                this.speed = random(1, 10);
+                this.friction = 0.95; this.gravity = 1;
+                this.hue = random(hue - 20, hue + 20);
+                this.brightness = random(50, 80); this.alpha = 1; this.decay = random(0.015, 0.03);
+            }
+            update(index) {
+                this.coordinates.pop(); this.coordinates.unshift([this.x, this.y]);
+                this.speed *= this.friction;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed + this.gravity;
+                this.alpha -= this.decay;
+                if (this.alpha <= this.decay) particles.splice(index, 1);
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                ctx.stroke();
+            }
+        }
+
+        class Spark {
+            constructor(x, y) {
+                this.x = x; this.y = y; this.angle = random(0, Math.PI * 2);
+                this.speed = random(0.5, 3); this.alpha = 1; this.decay = 0.03; this.color = randomColor();
+            }
+            update(index) {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.alpha -= this.decay;
+                if (this.alpha <= 0) sparks.splice(index, 1);
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+                ctx.fill(); ctx.globalAlpha = 1;
+            }
+        }
+
+        function createParticles(x, y, hue) {
+            const particleCount = 50; 
+            for (let i = 0; i < particleCount; i++) particles.push(new Particle(x, y, hue));
+        }
+
+        function loop() {
+            requestAnimationFrame(loop);
+            const time = Date.now();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            stars.forEach(star => { star.update(); star.draw(); });
+
+            let i = sparks.length;
+            while (i--) { sparks[i].draw(); sparks[i].update(i); }
+
+            if (isRunning) {
+                 stickmen.forEach(man => { man.update(time); man.draw(time); });
+
+                timer++;
+                if (timer >= LAUNCH_INTERVAL) {
+                    fireworks.push(new Firework(width / 2, height, random(0, width), random(0, height / 2)));
+                    timer = 0;
+                }
+                let j = fireworks.length;
+                while (j--) { fireworks[j].draw(); fireworks[j].update(j); }
+                let k = particles.length;
+                while (k--) { particles[k].draw(); particles[k].update(k); }
+            }
+        }
+
+        resize();
+        loop();
+        startFloatingIcons();
+
+        // ----------------------------------------------------
+        // Interaction & App Flow
+        // ----------------------------------------------------
+
+        const setupCard = document.getElementById('setup-card');
+        const startBtn = document.getElementById('startBtn');
+        const nameInput = document.getElementById('nameInput');
+        const messageContainer = document.getElementById('message-container');
+        const userNameDisplay = document.getElementById('user-name-display');
+        const resetBtn = document.getElementById('resetBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const controlsPanel = document.getElementById('controls-panel');
+        const bgYear = document.getElementById('bg-year');
+        const introBye = document.getElementById('intro-bye');
+        const introHello = document.getElementById('intro-hello');
+        
+        // Envelope Elements
+        const envelopeLayer = document.getElementById('envelope-layer');
+        const envelopeMsg = document.getElementById('envelope-msg');
+        const envelopeWrapper = document.getElementById('envelopeWrapper');
+        const openEnvBtn = document.getElementById('openEnvBtn');
+        const partyBtn = document.getElementById('partyBtn');
+        const letterSign = document.getElementById('letter-sign');
+        const floatingLayer = document.getElementById('floating-layer');
+
+        let currentName = "";
+
+        // URL Param Handling
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function startSequence(name) {
+            currentName = name;
+            // 1. Hide Input
+            setupCard.classList.add('hidden-card');
+            
+            // 2. Animate Intro: Bye Bye 2025
+            introBye.style.opacity = '1';
+            
+            setTimeout(() => {
+                introBye.classList.add('anim-slide-out');
+                bgYear.style.opacity = '0'; 
+
+                setTimeout(() => {
+                    introHello.style.opacity = '1';
+                    introHello.classList.add('anim-slide-in');
+                    
+                    bgYear.textContent = "2026";
+                    bgYear.style.opacity = '0.6';
+                    bgYear.classList.add('active');
+
+                    setTimeout(() => {
+                        introHello.classList.remove('anim-slide-in');
+                        introHello.classList.add('anim-slide-out');
+                        
+                        // NEW STEP: Show Envelope instead of going straight to party
+                        setTimeout(() => {
+                            showEnvelopeStage(name);
+                        }, 1000); 
+                        
+                    }, 2000); 
+                }, 1000); 
+            }, 1000); 
+        }
+        
+        function showEnvelopeStage(name) {
+            envelopeMsg.textContent = `${name} has sent you a message`;
+            letterSign.textContent = `From ${name}`;
+            envelopeLayer.style.display = 'flex';
+            
+            // Sequential Reset
+            openEnvBtn.style.display = 'block';
+            partyBtn.style.display = 'none'; // Ensure hidden initially
+            partyBtn.classList.remove('fade-in');
+            
+            setTimeout(() => { envelopeLayer.style.opacity = '1'; }, 10);
+        }
+
+        openEnvBtn.addEventListener('click', () => {
+            // STRICT SEQUENCE: Hide Open Button -> Animate -> Show Party Button
+            openEnvBtn.style.display = 'none'; 
+            document.getElementById('envelope-msg').classList.add('fade-out'); // Fade title
+            envelopeWrapper.classList.add('open'); // Start open animation
+
+            setTimeout(() => {
+                partyBtn.style.display = 'block';
+                partyBtn.classList.add('fade-in'); 
+            }, 1000); // Wait for envelope to be mostly open
+        });
+
+        partyBtn.addEventListener('click', () => {
+             // Fade out envelope
+             envelopeLayer.style.opacity = '0';
+             
+             setTimeout(() => {
+                envelopeLayer.style.display = 'none';
+                document.getElementById('envelope-msg').classList.remove('fade-out'); 
+                envelopeWrapper.classList.remove('open'); 
+                
+                // Show Main Wish
+                userNameDisplay.textContent = ""; // Removed user name display
+                messageContainer.style.opacity = '1';
+                controlsPanel.style.display = 'flex';
+                
+                // Start Fireworks and Crowd
+                isRunning = true;
+                initStickmen();
+                launchSequence();
+             }, 1000);
+        });
+
+        // On Load Check
+        window.addEventListener('load', () => {
+            const sharedName = getQueryParam('name');
+            if (sharedName) startSequence(decodeURIComponent(sharedName));
+        });
+
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim() || "Friend";
+            startSequence(name);
+        });
+        
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startBtn.click();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            // Reset internal state
+            isRunning = false;
+            fireworks = [];
+            particles = [];
+            stickmen = [];
+            
+            // Reset UI elements
+            messageContainer.style.opacity = '0';
+            
+            setupCard.classList.remove('hidden-card');
+            setupCard.style.display = 'block'; 
+            
+            controlsPanel.style.display = 'none';
+            
+            // Reset Background Year
+            bgYear.textContent = "2025";
+            bgYear.classList.remove('active');
+            bgYear.style.opacity = '0.6';
+            
+            // Reset Intro Animations
+            introBye.classList.remove('anim-slide-out');
+            introBye.style.opacity = '0';
+            
+            introHello.classList.remove('anim-slide-in');
+            introHello.classList.remove('anim-slide-out');
+            introHello.style.opacity = '0';
+            
+            // Reset Envelope
+            envelopeLayer.style.display = 'none';
+            envelopeLayer.style.opacity = '0';
+            document.getElementById('envelope-msg').classList.remove('fade-out');
+            envelopeWrapper.classList.remove('open');
+            
+            // Reset Buttons inside Envelope
+            openEnvBtn.style.display = 'block';
+            partyBtn.style.display = 'none';
+            partyBtn.classList.remove('fade-in');
+            partyBtn.classList.add('hidden');
+
+            nameInput.value = '';
+            nameInput.focus();
+        });
+
+        shareBtn.addEventListener('click', () => {
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?name=${encodeURIComponent(currentName)}`;
+            
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = shareUrl;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        });
+
+        // Mouse/Touch logic
+        function launchAtPosition(x, y) {
+            if (!isRunning) return;
+            fireworks.push(new Firework(width / 2, height, x, y));
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            for(let i=0; i<3; i++) sparks.push(new Spark(e.clientX, e.clientY));
+        });
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            for(let i=0; i<3; i++) sparks.push(new Spark(touch.clientX, touch.clientY));
+        });
+        window.addEventListener('mousedown', (e) => {
+            if(e.target.closest('.glass-card') || e.target.closest('.control-btn') || e.target.closest('#envelope-layer')) return;
+            launchAtPosition(e.clientX, e.clientY);
+        });
+        window.addEventListener('touchstart', (e) => {
+            if(e.target.closest('.glass-card') || e.target.closest('.control-btn') || e.target.closest('#envelope-layer')) return;
+            const touch = e.touches[0];
+            launchAtPosition(touch.clientX, touch.clientY);
+        });
+
+        function launchSequence() {
+            let count = 0;
+            const sequence = setInterval(() => {
+                fireworks.push(new Firework(width / 2, height, random(width*0.2, width*0.8), random(height*0.1, height*0.4)));
+                count++;
+                if(count > 5) clearInterval(sequence);
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>
