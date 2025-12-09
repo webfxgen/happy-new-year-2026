@@ -581,21 +581,70 @@
             to { opacity: 1; }
         }
 
-        /* NEW: Smooth Neon Rainbow Glow Animation */
-        @keyframes neon-rainbow {
-            0% { color: #ff0055; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055; }
-            15% { color: #ff9900; text-shadow: 0 0 10px #ff9900, 0 0 20px #ff9900, 0 0 40px #ff9900; }
-            30% { color: #ffcc00; text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00, 0 0 40px #ffcc00; }
-            45% { color: #33ff00; text-shadow: 0 0 10px #33ff00, 0 0 20px #33ff00, 0 0 40px #33ff00; }
-            60% { color: #00ccff; text-shadow: 0 0 10px #00ccff, 0 0 20px #00ccff, 0 0 40px #00ccff; }
-            75% { color: #9933ff; text-shadow: 0 0 10px #9933ff, 0 0 20px #9933ff, 0 0 40px #9933ff; }
-            90% { color: #ff00cc; text-shadow: 0 0 10px #ff00cc, 0 0 20px #ff00cc, 0 0 40px #ff00cc; }
-            100% { color: #ff0055; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055; }
+        /* NEW: Robust Hue Cycle Animation */
+        @keyframes hue-cycle {
+            0% { 
+                filter: hue-rotate(0deg) drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); 
+            }
+            100% { 
+                filter: hue-rotate(360deg) drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); 
+            }
         }
 
         .rainbow-text {
-            /* Removed background-clip for better glow performance */
-            animation: neon-rainbow 6s linear infinite;
+            /* Static vibrant gradient base */
+            background: linear-gradient(
+                to right, 
+                #ff0000, #ff8000, #ffff00, #00ff00, #0000ff, #4b0082, #ee82ee
+            );
+            
+            /* Standard & Webkit Background Clip */
+            -webkit-background-clip: text;
+            background-clip: text;
+            
+            /* CRITICAL FIX: Ensures text fill is transparent so gradient shows */
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            
+            /* Crisp White Outline */
+            -webkit-text-stroke: 1.5px #ffffff;
+            
+            /* Color Cycle Animation (4s for visibility) */
+            animation: hue-cycle 4s linear infinite;
+            
+            /* Extra thick font weight */
+            font-weight: 900; 
+            letter-spacing: 2px;
+            
+            /* Fallback for browsers that don't support clip */
+            display: inline-block;
+        }
+
+        /* Balloon Layer - Specific for Envelope Screen */
+        #balloon-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind envelope wrapper */
+            pointer-events: none;
+            overflow: hidden;
+            display: none; 
+        }
+
+        /* 3D Balloon Styles */
+        .balloon-svg {
+            position: absolute;
+            bottom: -150px;
+            opacity: 1; 
+            animation: floatUp linear forwards;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7)); 
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-120vh) rotate(10deg); }
         }
 
         /* Share Modal Styles */
@@ -734,11 +783,8 @@
 
         <!-- Envelope Layer -->
         <div id="envelope-layer">
-            <!-- Balloon Layer MOVED HERE -->
+            <!-- Balloon Layer Restored -->
             <div id="balloon-layer"></div>
-
-            <!-- NEW: Canvas for Letter Fireworks -->
-            <canvas id="letterFireworksCanvas"></canvas>
 
             <div class="sender-msg" id="envelope-msg">User has sent you a message</div>
             
@@ -797,8 +843,8 @@
 
         <!-- Celebration Message (Hidden initially) -->
         <div id="message-container">
-            <!-- Applied .rainbow-text here -->
-            <h1 class="wish-text font-bold text-white mb-2 floating rainbow-text">Happy New Year</h1>
+            <!-- Applied .rainbow-text here, removed text-white to allow gradient -->
+            <h1 class="wish-text font-bold mb-2 floating rainbow-text">Happy New Year</h1>
             <div id="user-name-display" class="name-text font-bold text-white name-animate"></div>
             <!-- Instruction text made full white (removed opacity-80) -->
             <p class="mt-4 text-white text-sm md:text-lg animate-pulse" style="text-shadow: 0 0 10px rgba(0,0,0,0.5);">Click or tap anywhere for fireworks!</p>
@@ -844,18 +890,12 @@
         let stars = [];
         let stickmen = [];
         let floatIcons = [];
+        
+        // Balloon Variables
         let balloons = [];
         let balloonInterval;
         let isBalloonActive = false;
         
-        // NEW: Letter Fireworks Canvas Logic
-        const letterCanvas = document.getElementById('letterFireworksCanvas');
-        const letterCtx = letterCanvas.getContext('2d');
-        let letterFireworks = [];
-        let letterParticles = [];
-        let letterFireworksInterval;
-        let isLetterFireworksActive = false;
-
         // Settings
         const GRAVITY = 0.04;
         const FRICTION = 0.98;
@@ -867,10 +907,6 @@
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-
-            // NEW: Resize letter canvas
-            letterCanvas.width = window.innerWidth;
-            letterCanvas.height = window.innerHeight;
             
             initStars();
             if(stickmen.length > 0) initStickmen();
@@ -884,7 +920,7 @@
         const shapes = ['🎁', '😊', '❤️', '🎈', '🥂', '🌟', '🎉'];
 
         /**
-         * Balloon Logic (Updated for 3D Realism)
+         * Balloon Logic (Restored 3D)
          */
         class Balloon {
             constructor() {
@@ -931,11 +967,11 @@
                 stop2.setAttribute("stop-color", color);
                 stop2.setAttribute("stop-opacity", "1");
                 
-                // Shadow/Edge - Changed from Black to Color for better visibility on dark bg
+                // Shadow/Edge
                 const stop3 = document.createElementNS(svgNS, "stop");
                 stop3.setAttribute("offset", "100%");
-                stop3.setAttribute("stop-color", color); // Keep the color at the edge
-                stop3.setAttribute("stop-opacity", "1"); // Full solid opacity
+                stop3.setAttribute("stop-color", color); 
+                stop3.setAttribute("stop-opacity", "1"); 
                 
                 radialGrad.appendChild(stop1);
                 radialGrad.appendChild(stop2);
@@ -963,25 +999,21 @@
                 } else {
                     // Heart
                     shape = document.createElementNS(svgNS, "path");
-                    // Refined Heart Path
                     shape.setAttribute("d", "M50,88 C50,88 12,65 12,38 C12,18 28,8 40,15 C46,19 50,28 50,28 C50,28 54,19 60,15 C72,8 88,18 88,38 C88,65 50,88 50,88 Z");
-                    // Adjust transform to center it
                     shape.setAttribute("transform", "translate(0, 5)");
                 }
                 
                 shape.setAttribute("fill", `url(#${gradId})`);
                 this.element.appendChild(shape);
 
-                // 3. Balloon Knot (Small triangle at bottom)
+                // 3. Balloon Knot
                 const knot = document.createElementNS(svgNS, "path");
-                // Position knot based on shape (approx bottom center)
-                // For simplified logic, assume ~90-95 is bottom
-                const knotY = shapeType >= 0.7 ? 92 : 98; // Hearts end a bit higher
+                const knotY = shapeType >= 0.7 ? 92 : 98; 
                 knot.setAttribute("d", `M46,${knotY-4} L54,${knotY-4} L50,${knotY+4} Z`);
                 knot.setAttribute("fill", color);
                 this.element.appendChild(knot);
 
-                // 4. String (Curved path)
+                // 4. String
                 const string = document.createElementNS(svgNS, "path");
                 string.setAttribute("d", `M50,${knotY+4} Q55,${knotY+20} 50,${knotY+35} T50,${knotY+55}`);
                 string.setAttribute("stroke", "rgba(255,255,255,0.6)");
@@ -1001,7 +1033,12 @@
         function startBalloons() {
             if(isBalloonActive) return;
             isBalloonActive = true;
-            document.getElementById('balloon-layer').style.display = 'block';
+            const layer = document.getElementById('balloon-layer');
+            layer.style.display = 'block';
+            
+            // Reset opacity and transition to ensure visibility
+            layer.style.transition = 'none'; 
+            layer.style.opacity = '1';
             
             // Spawn initial burst
             for(let i=0; i<5; i++) new Balloon();
@@ -1015,11 +1052,16 @@
             isBalloonActive = false;
             clearInterval(balloonInterval);
             const layer = document.getElementById('balloon-layer');
-            // Allow existing to float up then clear
+            
+            // Apply fade out transition
+            layer.style.transition = 'opacity 1s ease';
+            layer.style.opacity = '0';
+            
+            // Clear content after fade completes
             setTimeout(() => {
                 layer.innerHTML = '';
                 layer.style.display = 'none';
-            }, 2000); 
+            }, 1000); 
         }
 
         /**
@@ -1292,27 +1334,7 @@
             }
         }
 
-        // NEW: Letter Fireworks Loop
-        function letterLoop() {
-            if (!isLetterFireworksActive) return;
-            requestAnimationFrame(letterLoop);
-            
-            letterCtx.globalCompositeOperation = 'destination-out';
-            letterCtx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Slower fade for trails
-            letterCtx.fillRect(0, 0, width, height);
-            letterCtx.globalCompositeOperation = 'lighter';
-
-            let j = letterFireworks.length;
-            while (j--) { 
-                letterFireworks[j].draw(letterCtx); 
-                letterFireworks[j].update(j, letterFireworks, createLetterParticles); 
-            }
-            let k = letterParticles.length;
-            while (k--) { 
-                letterParticles[k].draw(letterCtx); 
-                letterParticles[k].update(k, letterParticles); 
-            }
-        }
+        // Letter Fireworks Loop REMOVED
 
         resize();
         loop();
@@ -1405,40 +1427,13 @@
             setTimeout(() => { envelopeLayer.style.opacity = '1'; }, 10);
         }
 
-        // NEW: Letter Fireworks Functions
-        function launchLetterFirework() {
-            const x = random(width * 0.3, width * 0.7); // Launch from near the letter
-            const y = height;
-            const targetX = random(width * 0.2, width * 0.8);
-            const targetY = random(height * 0.2, height * 0.5);
-            letterFireworks.push(new Firework(x, y, targetX, targetY));
-        }
-
-        function startLetterFireworks() {
-            if (isLetterFireworksActive) return;
-            isLetterFireworksActive = true;
-            letterLoop();
-            letterFireworksInterval = setInterval(launchLetterFirework, 800); // Launch every 800ms
-        }
-
-        function stopLetterFireworks() {
-            isLetterFireworksActive = false;
-            clearInterval(letterFireworksInterval);
-            setTimeout(() => {
-                letterFireworks = [];
-                letterParticles = [];
-                letterCtx.clearRect(0, 0, width, height);
-            }, 2000); // Allow them to finish
-        }
-
         openEnvBtn.addEventListener('click', () => {
             // STRICT SEQUENCE: Hide Open Button -> Animate -> Show Party Button
             openEnvBtn.style.display = 'none'; 
             document.getElementById('envelope-msg').classList.add('fade-out'); // Fade title
             envelopeWrapper.classList.add('open'); // Start open animation
             
-            // NEW: Start letter fireworks
-            startLetterFireworks();
+            // Letter fireworks start REMOVED
 
             setTimeout(() => {
                 partyBtn.style.display = 'block';
@@ -1452,9 +1447,6 @@
              
              // Stop Balloons!
              stopBalloons();
-
-             // NEW: Stop letter fireworks
-             stopLetterFireworks();
              
              setTimeout(() => {
                 envelopeLayer.style.display = 'none';
@@ -1525,9 +1517,6 @@
             
             // Reset Balloons
             stopBalloons();
-
-            // NEW: Stop letter fireworks
-            stopLetterFireworks();
             
             // Reset Buttons inside Envelope
             openEnvBtn.style.display = 'block';
